@@ -11,7 +11,7 @@ let totalQuestions = 10;
 let questionsToLoad = [];
 let currentQuestionIndex = 0;
 let correctAnswers = 0;
-let results = [];
+let generatedQuestionsSet = new Set(); // Set to track generated questions
 
 // Function to generate a random integer between min and max
 function getRandomInt(min, max) {
@@ -22,7 +22,9 @@ function getRandomInt(min, max) {
 function loadQuestions(difficulty) {
     console.log('Loading questions...'); // Debugging
     questionsToLoad = [];
-    for (let i = 0; i < totalQuestions; i++) {
+    generatedQuestionsSet.clear(); // Clear the set for new quiz session
+
+    while (questionsToLoad.length < totalQuestions) {
         let question;
         if (difficulty === 'beginner') {
             question = generateBeginnerQuestion();
@@ -31,104 +33,139 @@ function loadQuestions(difficulty) {
         } else if (difficulty === 'advanced') {
             question = generateAdvancedQuestion();
         }
-        questionsToLoad.push(question);
+
+        // Check if question is unique before adding to the list
+        if (question && !generatedQuestionsSet.has(question.question)) {
+            questionsToLoad.push(question);
+            generatedQuestionsSet.add(question.question);
+        }
     }
+    
     console.log(`Loaded questions:`, questionsToLoad); // Debugging
     currentQuestionIndex = 0; // Reset index to the beginning of the quiz
     showQuestion(); // Show the first question
 }
 
-// Function to generate beginner-level pre-algebra questions
+// Function to generate a random beginner question
 function generateBeginnerQuestion() {
-    const questionType = getRandomInt(1, 4);
+    const questionType = getRandomInt(1, 5); // Increased range for more variety
     let question, correctAnswer, steps;
 
     switch (questionType) {
-        case 1: // Simple Percentages
-            const total = getRandomInt(10, 100);
-            const percentage = getRandomInt(10, 50);
-            correctAnswer = ((percentage / 100) * total).toFixed(2);
-            question = `What is ${percentage}% of ${total}?`;
+        case 1:
+            // Very Simple Arithmetic: Addition or Subtraction
+            const a1 = getRandomInt(1, 10);
+            const b1 = getRandomInt(1, 10);
+            const operation1 = getRandomInt(0, 1) ? '+' : '-';
+            correctAnswer = operation1 === '+' ? (a1 + b1) : (a1 - b1);
+            question = `What is ${a1} ${operation1} ${b1}?`;
             steps = [
-                `Step 1: Convert percentage to decimal: ${percentage}% = ${percentage / 100}`,
-                `Step 2: Multiply by ${total}: (${percentage / 100}) * ${total} = ${correctAnswer}`
+                `Step 1: ${operation1 === '+' ? 'Add' : 'Subtract'} ${a1} and ${b1} to get ${correctAnswer}.`
             ];
             break;
-        case 2: // Fractions
-            const numerator = getRandomInt(1, 9);
-            const denominator = getRandomInt(2, 10);
-            const value = getRandomInt(1, 10);
-            correctAnswer = ((numerator / denominator) * value).toFixed(2);
-            question = `What is ${numerator}/${denominator} of ${value}?`;
+        case 2:
+            // Basic Multiplication
+            const a2 = getRandomInt(1, 5);
+            const b2 = getRandomInt(1, 5);
+            correctAnswer = a2 * b2;
+            question = `What is ${a2} * ${b2}?`;
             steps = [
-                `Step 1: Divide ${numerator} by ${denominator}: ${numerator}/${denominator} = ${(numerator / denominator).toFixed(2)}`,
-                `Step 2: Multiply by ${value}: ${(numerator / denominator).toFixed(2)} * ${value} = ${correctAnswer}`
+                `Step 1: Multiply ${a2} and ${b2} to get ${correctAnswer}.`
             ];
             break;
-        case 3: // Simple Linear Equations
-            const a = getRandomInt(1, 10);
-            const b = getRandomInt(1, 10);
-            correctAnswer = a + b;
-            question = `What is ${a} + ${b}?`;
-            steps = [`Step 1: Add ${a} and ${b}: ${a} + ${b} = ${correctAnswer}`];
-            break;
-        case 4: // Solving simple for x
-            const coefficient = getRandomInt(1, 5);
-            const valueToAdd = getRandomInt(1, 10);
-            const result = getRandomInt(15, 30);
-            correctAnswer = ((result - valueToAdd) / coefficient).toFixed(2);
-            question = `Solve for x: ${coefficient}x + ${valueToAdd} = ${result}`;
+        case 3:
+            // Simple Fractions
+            const numerator = getRandomInt(1, 5);
+            const denominator = getRandomInt(1, 5);
+            correctAnswer = (numerator / denominator).toFixed(2);
+            question = `What is ${numerator}/${denominator} as a decimal?`;
             steps = [
-                `Step 1: Subtract ${valueToAdd} from both sides: ${coefficient}x = ${result - valueToAdd}`,
-                `Step 2: Divide both sides by ${coefficient}: x = ${correctAnswer}`
+                `Step 1: Divide ${numerator} by ${denominator} to get ${correctAnswer}.`
+            ];
+            break;
+        case 4:
+            // Buffalo Bills Question
+            question = "If the Buffalo Bills score 3 touchdowns and each touchdown is worth 7 points, how many points did they score?";
+            correctAnswer = "21";
+            steps = [
+                "Step 1: Multiply the number of touchdowns by the points per touchdown: 3 * 7 = 21."
+            ];
+            break;
+        case 5:
+            // Baltimore Orioles Question
+            question = "If the Baltimore Orioles hit 5 home runs and each home run is worth 4 runs, how many runs did they score?";
+            correctAnswer = "20";
+            steps = [
+                "Step 1: Multiply the number of home runs by the runs per home run: 5 * 4 = 20."
             ];
             break;
     }
 
-    return { question, correctAnswer: correctAnswer.toString(), steps, options: generateOptions(correctAnswer) };
+    return { question, correctAnswer: correctAnswer.toString(), steps };
 }
 
 // Function to generate intermediate-level pre-algebra questions
 function generateIntermediateQuestion() {
-    const questionType = getRandomInt(1, 3);
+    const questionType = getRandomInt(1, 5); // Increased range for more variety
     let question, correctAnswer, steps;
 
     switch (questionType) {
-        case 1: // Linear Equations
+        case 1:
+            // Solving One-Step Equations
             const a = getRandomInt(1, 10);
             const b = getRandomInt(1, 20);
-            const c = getRandomInt(1, 20);
-            correctAnswer = ((c - b) / a).toFixed(2);
-            question = `Solve for x: ${a}x + ${b} = ${c}`;
+            correctAnswer = (b / a).toFixed(2);
+            question = `Solve for x: ${a}x = ${b}`;
             steps = [
-                `Step 1: Subtract ${b} from both sides: ${a}x = ${c - b}`,
-                `Step 2: Divide both sides by ${a}: x = ${correctAnswer}`
+                `Step 1: Divide both sides by ${a}: x = ${correctAnswer}`
             ];
             break;
-        case 2: // Basic Factoring
-            const factorA = getRandomInt(1, 5);
-            const factorB = getRandomInt(1, 5);
-            correctAnswer = `${factorA}x + ${factorA * factorB}`;
-            question = `Expand: ${factorA}(x + ${factorB})`;
+        case 2:
+            // Simple Inequalities
+            const a2 = getRandomInt(1, 10);
+            const b2 = getRandomInt(1, 20);
+            const c2 = getRandomInt(20, 40);
+            correctAnswer = ((c2 - b2) / a2).toFixed(2);
+            question = `Solve for x: ${a2}x + ${b2} < ${c2}`;
             steps = [
-                `Step 1: Distribute ${factorA}: ${factorA} * x + ${factorA} * ${factorB}`,
+                `Step 1: Subtract ${b2} from both sides: ${a2}x < ${c2 - b2}`,
+                `Step 2: Divide both sides by ${a2}: x < ${correctAnswer}`
+            ];
+            break;
+        case 3:
+            // Simplifying Expressions
+            const a3 = getRandomInt(1, 5);
+            const b3 = getRandomInt(1, 5);
+            correctAnswer = `${a3}x + ${a3 * b3}`;
+            question = `Simplify: ${a3}(x + ${b3})`;
+            steps = [
+                `Step 1: Distribute: ${a3} * x + ${a3} * ${b3}`,
                 `Step 2: Simplify: ${correctAnswer}`
             ];
             break;
-        case 3: // Inequalities
-            const a1 = getRandomInt(1, 10);
-            const b1 = getRandomInt(1, 10);
-            const c1 = getRandomInt(10, 30);
-            correctAnswer = ((c1 - b1) / a1).toFixed(2);
-            question = `Solve for x: ${a1}x + ${b1} < ${c1}`;
+        case 4:
+            // Phoenix Suns Question
+            question = "If the Phoenix Suns score 2 points for every basket and they made 10 baskets, how many points did they score?";
+            correctAnswer = "20";
             steps = [
-                `Step 1: Subtract ${b1} from both sides: ${a1}x < ${c1 - b1}`,
-                `Step 2: Divide both sides by ${a1}: x < ${correctAnswer}`
+                "Step 1: Multiply the number of baskets by the points per basket: 10 * 2 = 20."
+            ];
+            break;
+        case 5:
+            // Another Inequality
+            const a4 = getRandomInt(1, 10);
+            const b4 = getRandomInt(1, 20);
+            const c4 = getRandomInt(20, 40);
+            correctAnswer = ((c4 - b4) / a4).toFixed(2);
+            question = `Solve for x: ${a4}x + ${b4} < ${c4}`;
+            steps = [
+                `Step 1: Subtract ${b4} from both sides: ${a4}x < ${c4 - b4}`,
+                `Step 2: Divide both sides by ${a4}: x < ${correctAnswer}`
             ];
             break;
     }
 
-    return { question, correctAnswer: correctAnswer.toString(), steps, options: generateOptions(correctAnswer) };
+    return { question, correctAnswer: correctAnswer.toString(), steps };
 }
 
 // Function to generate advanced-level pre-algebra questions
@@ -139,8 +176,8 @@ function generateAdvancedQuestion() {
     let question = `Solve for x: ${a}x² + ${b}x + ${c} = 0`;
     let correctAnswer, steps;
 
-    // Using Math.js to calculate the discriminant and roots
-    const discriminant = math.pow(b, 2) - (4 * a * c);
+    // Using JavaScript Math functions to calculate the discriminant and roots
+    const discriminant = Math.pow(b, 2) - (4 * a * c);
 
     if (discriminant < 0) {
         correctAnswer = "No real roots";
@@ -149,8 +186,8 @@ function generateAdvancedQuestion() {
             `Step 2: Since the discriminant is negative (${discriminant}), there are no real roots.`
         ];
     } else {
-        const root1 = math.round((-b + math.sqrt(discriminant)) / (2 * a), 2);
-        const root2 = math.round((-b - math.sqrt(discriminant)) / (2 * a), 2);
+        const root1 = ((-b + Math.sqrt(discriminant)) / (2 * a)).toFixed(2);
+        const root2 = ((-b - Math.sqrt(discriminant)) / (2 * a)).toFixed(2);
         correctAnswer = `x = ${root1}, x = ${root2}`;
         steps = [
             `Step 1: Calculate the discriminant: b² - 4ac = ${b}² - 4 * ${a} * ${c} = ${discriminant}`,
@@ -160,30 +197,7 @@ function generateAdvancedQuestion() {
         ];
     }
 
-    const options = correctAnswer === "No real roots" ? ["No real roots"] : generateOptions(root1, root2);
-    return { question, correctAnswer, steps, options };
-}
-
-// Function to generate multiple-choice options ensuring uniqueness
-function generateOptions(correctAnswer, secondAnswer = null) {
-    let options = new Set();
-    if (secondAnswer !== null) {
-        options.add(correctAnswer);
-        options.add(secondAnswer);
-    } else {
-        options.add(correctAnswer);
-    }
-
-    while (options.size < 5) {
-        let randomOffset = getRandomInt(-10, 10);
-        let potentialOption = parseFloat(correctAnswer) + randomOffset;
-        if (typeof correctAnswer === 'string' && correctAnswer.includes('x =')) {
-            continue; // Skip complex answers like quadratic roots for options
-        }
-        options.add(Number.isInteger(potentialOption) ? potentialOption.toString() : potentialOption.toFixed(2));
-    }
-
-    return Array.from(options).sort(() => Math.random() - 0.5);
+    return { question, correctAnswer, steps };
 }
 
 // Function to show one question at a time
@@ -196,13 +210,12 @@ function showQuestion() {
     const question = questionsToLoad[currentQuestionIndex];
     const container = document.querySelector('.questions-container');
 
-    // Updated styling for the question to highlight the equation
     container.innerHTML = `
         <div class="question">
             <strong>Question ${currentQuestionIndex + 1} of ${totalQuestions}:</strong>
             <p class="equation">${question.question}</p>
             <form id="questionForm">
-                ${question.options.map((option, index) => `
+                ${generateOptions(question.correctAnswer).map((option, index) => `
                     <div class="option">
                         <input type="radio" id="option${index}" name="answer" value="${option}">
                         <label for="option${index}">${String.fromCharCode(65 + index)}. ${option}</label><br>
@@ -226,6 +239,20 @@ function showQuestion() {
         currentQuestionIndex++;
         showQuestion();
     });
+}
+
+// Function to generate multiple-choice options ensuring uniqueness
+function generateOptions(correctAnswer) {
+    let options = new Set();
+    options.add(correctAnswer);
+
+    while (options.size < 5) {
+        let randomOffset = getRandomInt(-5, 5);
+        let potentialOption = parseFloat(correctAnswer) + randomOffset;
+        options.add(Number.isInteger(potentialOption) ? potentialOption.toString() : potentialOption.toFixed(2));
+    }
+
+    return Array.from(options).sort(() => Math.random() - 0.5);
 }
 
 // Function to check the user's answer
@@ -288,13 +315,12 @@ function generateReportCard() {
         feedback = "Don't give up, Mikey! We'll tackle these together.";
     }
 
-    const reportWindow = document.createElement('div');
-    reportWindow.className = 'report-card';
-    reportWindow.innerHTML = `
+    const reportWindow = window.open("", "Report Card", "width=400,height=300");
+    reportWindow.document.write(`
         <h1>Mikey's Report Card</h1>
         <p class="score">Score: ${correctAnswers} out of ${totalQuestions} (${scorePercentage.toFixed(2)}%)</p>
         <p class="grade">Letter Grade: ${letterGrade}</p>
         <p class="feedback">${feedback}</p>
-    `;
-    document.querySelector('.questions-container').appendChild(reportWindow);
+    `);
+    reportWindow.document.close();
 }
