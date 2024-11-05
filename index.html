@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Algebra Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.0.0/math.min.js"></script>
+</head>
+<body>
+    <div class="intro">
+        <h1>Welcome to the Pre-Algebra Quiz, Mikey!</h1>
+        <p>Select your difficulty level and click the button below to start the quiz. Have fun and learn!</p>
+        <select id="difficultyLevel">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+        </select>
+        <button id="startQuizButton">Start Quiz</button>
+    </div>
+    <div class="questions-container" style="display: none;"></div>
+    <button class="next-question" style="display: none;" onclick="nextQuestion()">Next Question</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
